@@ -147,15 +147,16 @@ let ScrapeService = class ScrapeService {
                 throw new Error(`Request failed: ${response.status}`);
             }
             const res = await response.json();
-            const minimalData = res.flatMap((category) => category.quests.map((q) => ({
-                categoryId: category.id,
-                questId: q.id,
-                completed: q.completed,
-                claimed: q.claimed,
-                opened: q.opened,
-                canRetry: q.canRetry,
-                locked: q.locked,
-            })));
+const categories = Array.isArray(res) ? res : [res];
+const minimalData = categories.flatMap((category) => (category.quests || []).map((q) => ({
+    categoryId: category.id,
+    questId: q.id,
+    completed: q.completed,
+    claimed: q.claimed,
+    opened: q.opened,
+    canRetry: q.canRetry,
+    locked: q.locked,
+})));
             const fileContent = await this.getFileContent(filePath);
             if (!fileContent || fileContent.trim() === "") {
                 if (minimalData.length > 0) {
